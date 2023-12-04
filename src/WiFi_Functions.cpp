@@ -331,7 +331,32 @@ bool WiFi_Functions::AP_Credentials::loadAllCredentialsFromNVS(std::string p_nvs
                         break;
                     }
                 }
-                WiFi_Functions::AP_Credentials::saveRouterConfiguration(ssid, password);
+
+                //edited code from saveRouterConfig() to remove additive NVS Saving when initially storing credentials at each startup
+                for (auto connection : vec_AP_Credentials)
+                {
+                    if (connection->getWifi_ssid() != "" && connection->getWifi_ssid() == ssid)
+                    {
+                        if (0 == strcmp(connection->getWifi_password().c_str(), password.c_str()))
+                        {
+                            std::cout << "Old password: \"" << connection->getWifi_password() << "\" is equal to new password: \"" << password << "\"\n";
+                            printf("Credentials are equal to the already stored ones, no opertation on saved credentials was performed.");
+                            return connection;
+                        }
+                        std::cout << "Old password: \"" << connection->getWifi_password() << "\" is not equal to new password: \"" << password << "\"\n";
+
+                        connection->setWifi_password(password);
+                        WiFi_Functions::AP_Credentials::setCredentialToNVS(connection->getWifi_ssid(), connection);
+                        printf("A Configuration was found that machtches this SSID. Credentials were updated.\n");
+                        return connection; // Found a match
+                    }
+                }
+
+                WiFi_Functions::AP_Credentials *newConnection = new WiFi_Functions::AP_Credentials(ssid, password);
+                vec_AP_Credentials.push_back(newConnection);
+
+                // nvs_wrapper::setValueToKey(wifi_ssid, *newConnection);
+                printf("The following Configuration has been saved:\n\tSSID:     \"%s\"\n\tPassword: \"%s\"\n", ssid.c_str(), password.c_str());
             }
             else
             {

@@ -10,7 +10,7 @@ extern "C"
 #include "helper_functions.h"
 #include "http_functions.h"
 #include "secret.h"
-
+    
 // #include "lvgl_helpers.h"
 
 // #define keythatneverexists "ineverdoexist"
@@ -77,9 +77,9 @@ void app_main(void)
     std::cout << "\n\n\n";
     delay(3200);
 
-    WiFi_Functions::AP_Credentials::saveRouterConfiguration(wifi_ssid, wifi_password);
-    WiFi_Functions::AP_Credentials::saveRouterConfiguration(wifi_ssid2, wifi_password2);
-    WiFi_Functions::AP_Credentials::saveRouterConfiguration(wifi_ssid3, wifi_password3);
+    // WiFi_Functions::AP_Credentials::saveRouterConfiguration(wifi_ssid, wifi_password);
+    // WiFi_Functions::AP_Credentials::saveRouterConfiguration(wifi_ssid2, wifi_password2);
+    // WiFi_Functions::AP_Credentials::saveRouterConfiguration(wifi_ssid3, wifi_password3);
 
     xTaskCreate(task_connect_wifi, "connect_wifi", 1024 * 8, NULL, 2, NULL);
     if (xSemaphoreTake(semaphore_handle, portMAX_DELAY))
