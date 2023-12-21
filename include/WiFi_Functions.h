@@ -3,8 +3,6 @@
 #include "wholeinclude.h"
 #include "nvs_wrapper.h"
 
-
-
 namespace WiFi_Functions
 {
     class AP_Credentials;
@@ -28,8 +26,8 @@ namespace WiFi_Functions
 
     // Bits for following the status of the WiFI Connection to the current AP
     // Used by e.g. wifi_fail_bit_listener
-    inline constexpr int8_t WIFI_CONNECTED_BIT = BIT0;
-    inline constexpr int8_t WIFI_FAIL_BIT = BIT1;
+    inline constexpr int8_t WIFI_CONNECTED_BIT = BIT1;
+    inline constexpr int8_t WIFI_FAIL_BIT = BIT2;
 
     inline AP_Credentials *currentAPConnection = nullptr;
 

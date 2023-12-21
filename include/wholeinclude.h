@@ -41,6 +41,8 @@
 
 //Display Library
 #include "lvgl/lvgl.h"
+#include "lvgl/examples/lv_examples.h"
+#include "lvgl/demos/lv_demos.h"
 
 
 

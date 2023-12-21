@@ -1,0 +1,10 @@
+WeatherStation Project by Kai Oestreich (Gisbert12843)
+Started 2023
+
+License: MIT
+
+
+
+
+
+WiFi_Function

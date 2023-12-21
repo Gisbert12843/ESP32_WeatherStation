@@ -198,6 +198,9 @@ void WiFi_Functions::de_init()
                                                                             IP_EVENT_STA_GOT_IP,
                                                                             &WiFi_Functions::instance_got_ip));
 
+        esp_wifi_disconnect();
+        esp_wifi_stop();
+
         ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_deinit());
 
         // esp_netif_destroy_default_wifi(WiFi_Functions::sta_netif);
@@ -216,6 +219,7 @@ void WiFi_Functions::init()
     {
         init_state = true;
 
+
         ESP_ERROR_CHECK_WITHOUT_ABORT(esp_netif_init());
         ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_loop_create_default());
 
@@ -225,6 +229,7 @@ void WiFi_Functions::init()
         assert(sta_netif);
 
         ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_init(&cfg));
+        ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_storage(WIFI_STORAGE_RAM));
         ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_mode(WIFI_MODE_STA));
         ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_start());
         esp_netif_set_hostname(sta_netif, "Kais_Wetterstations");
