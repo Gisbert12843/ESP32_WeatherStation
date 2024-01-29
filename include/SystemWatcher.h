@@ -21,6 +21,7 @@ namespace SystemWatcher
      *   WIFI Connection Issues
      *   Display Updates are working
      *   Tasks are running
+     *   API is still reachable
      */
 
     inline std::chrono::high_resolution_clock::time_point last_http_update;

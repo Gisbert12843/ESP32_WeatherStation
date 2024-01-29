@@ -13,18 +13,16 @@ extern "C"
 #include "secret.h"
 #include "tft.h"
 #include "SystemWatcher.h"
-    
-    
+#include "weather.h"
+#include <string.h>
+
 // #include "lvgl_helpers.h"
 
 // #define keythatneverexists "ineverdoexist"
 
-
 SemaphoreHandle_t semaphore_handle;
 
 using namespace helper_functions;
-
-
 
 void task_connect_wifi(void *param)
 {
@@ -45,34 +43,64 @@ void task_connect_wifi(void *param)
 
 void task_init_all(void *param)
 {
-    semaphore_handle = xSemaphoreCreateBinary();
-    nvs_wrapper::init();
-    WiFi_Functions::init();
-    xSemaphoreGive(semaphore_handle);
-
-    vTaskDelete(NULL);
+    while (true)
+    {
+        semaphore_handle = xSemaphoreCreateBinary();
+        nvs_wrapper::init();
+        WiFi_Functions::init();
+        xSemaphoreGive(semaphore_handle);
+        vTaskDelete(NULL);
+    }
 }
 
+/*
+    Setup:
+        INIT ALL
+        Check for very first Startup then we gotta take in user info about their location
+        Start SystemWatcher
+
+    Loop:
+        Update Weather Object with new Data from Server
+        Update Display
+        (Handle User Input?)
+*/
 void app_main(void)
 {
-    delay(4000);
+    delay(5000);
 
-    // esp_err_t err = nvs_flash_init();
-    // if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
-    // {
-    // }
-    // ESP_ERROR_CHECK(err);
     xTaskCreate(task_init_all, "init_all", 1024 * 8, NULL, 2, NULL);
     if (xSemaphoreTake(semaphore_handle, portMAX_DELAY))
         xSemaphoreGive(semaphore_handle);
 
-    delay(4000);
+    delay(2000);
+
+    Weather current_weather("1.1.2024","Monday");
+
+    
+    
+}
 
 
-    // xTaskCreate( tft_wrapper::print_pixel_mask, " tft_wrapper::init()", 1024 * 8, NULL, 2, NULL);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// xTaskCreate( tft_wrapper::print_pixel_mask, " tft_wrapper::init()", 1024 * 8, NULL, 2, NULL);
     // tft_wrapper::init();
-
-
 
     // if(!WiFi_Functions::AP_Credentials::loadAllCredentialsFromNVS())
     //     std::cout << "\n\nCouldnt load even 1 element in loadAllCredentialsFromNVS.\n";
@@ -89,4 +117,3 @@ void app_main(void)
     //     xSemaphoreGive(semaphore_handle);
 
     // std::cout << "\n\ngot to get request\n\n";
-}

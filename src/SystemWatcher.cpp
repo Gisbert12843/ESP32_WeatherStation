@@ -17,33 +17,21 @@ void task_startSystemWatcher(void *param)
                 else 
                 {
                     std::cout << "No Internet Connection currently or World Servers are down lol.\nGotta wait I guess.\n";
-                    
                 }
-            }
-            if (!SystemWatcher::http_welfare_check())
-            {
-                std::cout << "HTTP WELFARE CHECK FAIL\n";
-                WiFi_Functions::de_init();
-                WiFi_Functions::init();
-            }
-            if (!SystemWatcher::wifi_welfare_check())
-            {
-                std::cout << "HTTP WELFARE CHECK FAIL\n";
-                WiFi_Functions::de_init();
-                WiFi_Functions::init();
             }
             helper_functions::delay(120000);
         }
         catch (std::exception e)
         {
             std::cout << "EXCEPTION IN task_startSystemWatcher: " << e.what() << "\n";
-            helper_functions::delay(300);
+            helper_functions::delay(1500);
             esp_restart();
         }
     }
     vTaskSuspend(NULL);
 }
 
+// TODO
 bool SystemWatcher::http_welfare_check(int compared_miliseconds)
 {
     auto start = SystemWatcher::last_http_update;
