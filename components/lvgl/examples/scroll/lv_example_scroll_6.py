@@ -1,14 +1,14 @@
 def scroll_event_cb(e):
 
-    cont = e.get_target_obj()
+    cont = e.get_target()
 
     cont_a = lv.area_t()
     cont.get_coords(cont_a)
     cont_y_center = cont_a.y1 + cont_a.get_height() // 2
 
     r = cont.get_height() * 7 // 10
-
-    child_cnt = cont.get_child_count()
+    
+    child_cnt = cont.get_child_cnt()
     for i in range(child_cnt):
         child = cont.get_child(i)
         child_a = lv.area_t()
@@ -20,7 +20,7 @@ def scroll_event_cb(e):
         diff_y = abs(diff_y)
 
         # Get the x of diff_y on a circle.
-
+        
         # If diff_y is out of the circle use the last point of the circle (the radius)
         if diff_y >= r:
             x = r
@@ -42,26 +42,26 @@ def scroll_event_cb(e):
 # Translate the object as they scroll
 #
 
-cont = lv.obj(lv.screen_active())
+cont = lv.obj(lv.scr_act())
 cont.set_size(200, 200)
 cont.center()
 cont.set_flex_flow(lv.FLEX_FLOW.COLUMN)
-cont.add_event(scroll_event_cb, lv.EVENT.SCROLL, None)
-cont.set_style_radius(lv.RADIUS_CIRCLE, 0)
+cont.add_event_cb(scroll_event_cb, lv.EVENT.SCROLL, None)
+cont.set_style_radius(lv.RADIUS.CIRCLE, 0)
 cont.set_style_clip_corner(True, 0)
 cont.set_scroll_dir(lv.DIR.VER)
 cont.set_scroll_snap_y(lv.SCROLL_SNAP.CENTER)
 cont.set_scrollbar_mode(lv.SCROLLBAR_MODE.OFF)
 
 for i in range(20):
-    button = lv.button(cont)
-    button.set_width(lv.pct(100))
-
-    label = lv.label(button)
+    btn = lv.btn(cont)
+    btn.set_width(lv.pct(100))
+    
+    label = lv.label(btn)
     label.set_text("Button " + str(i))
 
     # Update the buttons position manually for first*
-    cont.send_event(lv.EVENT.SCROLL, None)
+    lv.event_send(cont, lv.EVENT.SCROLL, None)
 
     # Be sure the fist button is in the middle
     #lv.obj.scroll_to_view(cont.get_child(0), lv.ANIM.OFF)

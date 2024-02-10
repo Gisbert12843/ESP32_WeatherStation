@@ -13,15 +13,12 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "lv_draw_sw_blend.h"
 #include "../lv_draw.h"
-#if LV_USE_DRAW_SW
-
 #include "../../misc/lv_area.h"
 #include "../../misc/lv_color.h"
-#include "../../display/lv_display.h"
-#include "../../osal/lv_os.h"
+#include "../../hal/lv_hal_disp.h"
 
-#include "../../draw/lv_draw_vector.h"
 /*********************
  *      DEFINES
  *********************/
@@ -30,72 +27,41 @@ extern "C" {
  *      TYPEDEFS
  **********************/
 
-typedef struct {
-    lv_draw_unit_t base_unit;
-    struct _lv_draw_task_t * task_act;
-#if LV_USE_OS
-    lv_thread_sync_t sync;
-    lv_thread_t thread;
-    volatile bool inited;
-    volatile bool exit_status;
-#endif
-    uint32_t idx;
-} lv_draw_sw_unit_t;
+struct _lv_disp_drv_t;
 
-#if LV_DRAW_SW_SHADOW_CACHE_SIZE
 typedef struct {
-    uint8_t cache[LV_DRAW_SW_SHADOW_CACHE_SIZE * LV_DRAW_SW_SHADOW_CACHE_SIZE];
-    int32_t cache_size;
-    int32_t cache_r;
-} lv_draw_sw_shadow_cache_t;
-#endif
+    lv_draw_ctx_t base_draw;
+
+    /** Fill an area of the destination buffer with a color*/
+    void (*blend)(lv_draw_ctx_t * draw_ctx, const lv_draw_sw_blend_dsc_t * dsc);
+} lv_draw_sw_ctx_t;
 
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
 
-void lv_draw_sw_init(void);
+void lv_draw_sw_init_ctx(struct _lv_disp_drv_t * drv, lv_draw_ctx_t * draw_ctx);
+void lv_draw_sw_deinit_ctx(struct _lv_disp_drv_t * drv, lv_draw_ctx_t * draw_ctx);
 
-void lv_draw_sw_deinit(void);
+void lv_draw_sw_wait_for_finish(lv_draw_ctx_t * draw_ctx);
 
-LV_ATTRIBUTE_FAST_MEM void lv_draw_sw_image(lv_draw_unit_t * draw_unit, const lv_draw_image_dsc_t * draw_dsc,
-                                            const lv_area_t * coords);
+void lv_draw_sw_arc(lv_draw_ctx_t * draw_ctx, const lv_draw_arc_dsc_t * dsc, const lv_point_t * center, uint16_t radius,
+                    uint16_t start_angle, uint16_t end_angle);
 
-void lv_draw_sw_fill(lv_draw_unit_t * draw_unit, const lv_draw_fill_dsc_t * dsc, const lv_area_t * coords);
+void lv_draw_sw_rect(lv_draw_ctx_t * draw_ctx, const lv_draw_rect_dsc_t * dsc, const lv_area_t * coords);
 
-void lv_draw_sw_border(lv_draw_unit_t * draw_unit, const lv_draw_border_dsc_t * dsc, const lv_area_t * coords);
+void lv_draw_sw_bg(lv_draw_ctx_t * draw_ctx, const lv_draw_rect_dsc_t * dsc, const lv_area_t * coords);
+void lv_draw_sw_letter(lv_draw_ctx_t * draw_ctx, const lv_draw_label_dsc_t * dsc, const lv_point_t * pos_p,
+                       uint32_t letter);
 
-void lv_draw_sw_box_shadow(lv_draw_unit_t * draw_unit, const lv_draw_box_shadow_dsc_t * dsc, const lv_area_t * coords);
+LV_ATTRIBUTE_FAST_MEM void lv_draw_sw_img_decoded(struct _lv_draw_ctx_t * draw_ctx, const lv_draw_img_dsc_t * draw_dsc,
+                                                  const lv_area_t * coords, const uint8_t * src_buf, lv_img_cf_t cf);
 
-void lv_draw_sw_bg_image(lv_draw_unit_t * draw_unit, const lv_draw_bg_image_dsc_t * dsc, const lv_area_t * coords);
+LV_ATTRIBUTE_FAST_MEM void lv_draw_sw_line(struct _lv_draw_ctx_t * draw_ctx, const lv_draw_line_dsc_t * dsc,
+                                           const lv_point_t * point1, const lv_point_t * point2);
 
-void lv_draw_sw_label(lv_draw_unit_t * draw_unit, const lv_draw_label_dsc_t * dsc, const lv_area_t * coords);
-
-void lv_draw_sw_arc(lv_draw_unit_t * draw_unit, const lv_draw_arc_dsc_t * dsc, const lv_area_t * coords);
-
-LV_ATTRIBUTE_FAST_MEM void lv_draw_sw_line(lv_draw_unit_t * draw_unit, const lv_draw_line_dsc_t * dsc);
-
-void lv_draw_sw_layer(lv_draw_unit_t * draw_unit, const lv_draw_image_dsc_t * draw_dsc, const lv_area_t * coords);
-
-void lv_draw_sw_triangle(lv_draw_unit_t * draw_unit, const lv_draw_triangle_dsc_t * dsc);
-
-void lv_draw_sw_mask_rect(lv_draw_unit_t * draw_unit, const lv_draw_mask_rect_dsc_t * dsc, const lv_area_t * coords);
-
-void lv_draw_sw_transform(lv_draw_unit_t * draw_unit, const lv_area_t * dest_area, const void * src_buf,
-                          int32_t src_w, int32_t src_h, int32_t src_stride,
-                          const lv_draw_image_dsc_t * draw_dsc, const lv_draw_image_sup_t * sup, lv_color_format_t cf, void * dest_buf);
-
-#if LV_USE_VECTOR_GRAPHIC
-void lv_draw_sw_vector(lv_draw_unit_t * draw_unit, const lv_draw_vector_task_dsc_t * dsc);
-#endif
-
-/**
- * Swap the upper and lower byte of an RGB565 buffer.
- * Might be required if a 8bit parallel port or an SPI port send the bytes in the wrong order.
- * The bytes will be swapped in place.
- * @param buf_size_px   number of pixels in the buffer
- */
-void lv_draw_sw_rgb565_swap(void * buf, int32_t buf_size_px);
+void lv_draw_sw_polygon(struct _lv_draw_ctx_t * draw_ctx, const lv_draw_rect_dsc_t * draw_dsc,
+                        const lv_point_t * points, uint16_t point_cnt);
 
 /***********************
  * GLOBAL VARIABLES
@@ -104,10 +70,6 @@ void lv_draw_sw_rgb565_swap(void * buf, int32_t buf_size_px);
 /**********************
  *      MACROS
  **********************/
-
-#include "blend/lv_draw_sw_blend.h"
-
-#endif /*LV_USE_DRAW_SW*/
 
 #ifdef __cplusplus
 } /*extern "C"*/

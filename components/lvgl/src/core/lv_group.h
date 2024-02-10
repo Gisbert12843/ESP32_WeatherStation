@@ -25,7 +25,8 @@ extern "C" {
  *      DEFINES
  *********************/
 /*Predefined keys to control the focused object via lv_group_send(group, c)*/
-enum _lv_key_t {
+
+enum {
     LV_KEY_UP        = 17,  /*0x11*/
     LV_KEY_DOWN      = 18,  /*0x12*/
     LV_KEY_RIGHT     = 19,  /*0x13*/
@@ -39,12 +40,7 @@ enum _lv_key_t {
     LV_KEY_HOME      = 2,   /*0x02, STX*/
     LV_KEY_END       = 3,   /*0x03, ETX*/
 };
-
-#ifdef DOXYGEN
-typedef _lv_key_t lv_key_t;
-#else
 typedef uint8_t lv_key_t;
-#endif /*DOXYGEN*/
 
 /**********************
  *      TYPEDEFS
@@ -54,7 +50,6 @@ struct _lv_obj_t;
 struct _lv_group_t;
 
 typedef void (*lv_group_focus_cb_t)(struct _lv_group_t *);
-typedef void (*lv_group_edge_cb_t)(struct _lv_group_t *, bool);
 
 /**
  * Groups can be used to logically hold objects so that they can be individually focused.
@@ -65,11 +60,9 @@ typedef struct _lv_group_t {
     struct _lv_obj_t ** obj_focus; /**< The object in focus*/
 
     lv_group_focus_cb_t focus_cb;              /**< A function to call when a new object is focused (optional)*/
-    lv_group_edge_cb_t  edge_cb;               /**< A function to call when an edge is reached, no more focus
-                                                    targets are available in this direction (to allow edge feedback
-                                                    like a sound or a scroll bounce) */
-
+#if LV_USE_USER_DATA
     void * user_data;
+#endif
 
     uint8_t frozen : 1;         /**< 1: can't focus to new object*/
     uint8_t editing : 1;        /**< 1: Edit mode, 0: Navigate mode*/
@@ -78,6 +71,7 @@ typedef struct _lv_group_t {
     uint8_t wrap : 1;           /**< 1: Focus next/prev can wrap at end of list. 0: Focus next/prev stops at end
                                    of list.*/
 } lv_group_t;
+
 
 typedef enum {
     LV_GROUP_REFOCUS_POLICY_NEXT = 0,
@@ -95,12 +89,6 @@ typedef enum {
 void _lv_group_init(void);
 
 /**
- * Deinit. the group module
- * @remarks Internal function, do not call directly.
- */
-void _lv_group_deinit(void);
-
-/**
  * Create a new object group
  * @return          pointer to the new object group
  */
@@ -110,7 +98,7 @@ lv_group_t * lv_group_create(void);
  * Delete a group object
  * @param group     pointer to a group
  */
-void lv_group_delete(lv_group_t * group);
+void lv_group_del(lv_group_t * group);
 
 /**
  * Set a default group. New object are added to this group if it's enabled in their class with `add_to_def_group = true`
@@ -181,7 +169,7 @@ void lv_group_focus_freeze(lv_group_t * group, bool en);
  * @param c         a character (use LV_KEY_.. to navigate)
  * @return          result of focused object in group.
  */
-lv_result_t lv_group_send_data(lv_group_t * group, uint32_t c);
+lv_res_t lv_group_send_data(lv_group_t * group, uint32_t c);
 
 /**
  * Set a function for a group which will be called when a new object is focused
@@ -189,13 +177,6 @@ lv_result_t lv_group_send_data(lv_group_t * group, uint32_t c);
  * @param focus_cb      the call back function or NULL if unused
  */
 void lv_group_set_focus_cb(lv_group_t * group, lv_group_focus_cb_t focus_cb);
-
-/**
- * Set a function for a group which will be called when a focus edge is reached
- * @param group         pointer to a group
- * @param edge_cb      the call back function or NULL if unused
- */
-void lv_group_set_edge_cb(lv_group_t * group, lv_group_edge_cb_t edge_cb);
 
 /**
  * Set whether the next or previous item in a group is focused if the currently focused obj is
@@ -234,13 +215,6 @@ struct _lv_obj_t * lv_group_get_focused(const lv_group_t * group);
 lv_group_focus_cb_t lv_group_get_focus_cb(const lv_group_t * group);
 
 /**
- * Get the edge callback function of a group
- * @param group pointer to a group
- * @return the call back function or NULL if not set
- */
-lv_group_edge_cb_t lv_group_get_edge_cb(const lv_group_t * group);
-
-/**
  * Get the current mode (edit or navigate).
  * @param group         pointer to group
  * @return              true: edit mode; false: navigate mode
@@ -260,18 +234,6 @@ bool lv_group_get_wrap(lv_group_t * group);
  * @return              number of objects in the group
  */
 uint32_t lv_group_get_obj_count(lv_group_t * group);
-
-/**
- * Get the number of groups
- * @return              number of groups
- */
-uint32_t lv_group_get_count(void);
-
-/**
- * Get a group by its index
- * @return              pointer to the group
- */
-lv_group_t  * lv_group_by_index(uint32_t index);
 
 /**********************
  *      MACROS

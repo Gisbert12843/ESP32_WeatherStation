@@ -1,5 +1,4 @@
-    #pragma once
-#include <stdio.h>
+#pragma once
 #include <iostream>
 #include <inttypes.h>
 #include <vector>
@@ -40,10 +39,9 @@
 #include "nvs_flash.h"
 
 //Display Library
-#include "lvgl/lvgl.h"
-#include "lvgl_helpers.h"
-// #include "lvgl/examples/lv_examples.h"
-// #include "lvgl/demos/lv_demos.h"
+#include "lvgl.h"
+#include <lvgl_helpers.h>
+
 
 
 

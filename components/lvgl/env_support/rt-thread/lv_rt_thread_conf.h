@@ -41,6 +41,16 @@
  *=======================*/
 
 /*-------------
+ * Logging
+ *-----------*/
+
+#ifdef PKG_LVGL_ENABLE_LOG
+#  define LV_USE_LOG 1
+#else
+#  define LV_USE_LOG 0
+#endif
+
+/*-------------
  * Asserts
  *-----------*/
 
@@ -53,8 +63,9 @@
 
 #define LV_SPRINTF_CUSTOM 1
 #define LV_SPRINTF_INCLUDE LV_RTTHREAD_INCLUDE
-#define LV_SNPRINTF  rt_snprintf
-#define LV_VSNPRINTF rt_vsnprintf
+#define lv_snprintf  rt_snprintf
+#define lv_vsnprintf rt_vsnprintf
+#define LV_SPRINTF_USE_FLOAT 0
 
 /*=====================
  *  COMPILER SETTINGS
@@ -66,17 +77,13 @@
 #  define LV_BIG_ENDIAN_SYSTEM 0
 #endif
 
-#ifdef rt_align /* >= RT-Thread v5.0.0 */
-#  define LV_ATTRIBUTE_MEM_ALIGN rt_align(RT_ALIGN_SIZE)
-#else
-#  define LV_ATTRIBUTE_MEM_ALIGN ALIGN(RT_ALIGN_SIZE)
-#endif
+#define LV_ATTRIBUTE_MEM_ALIGN ALIGN(4)
 
 /*==================
 * EXAMPLES
 *==================*/
 
-#ifdef PKG_LVGL_USING_EXAMPLES
+#ifdef PKG_USING_LVGL_EXAMPLES
 #  define LV_BUILD_EXAMPLES 1
 #endif
 

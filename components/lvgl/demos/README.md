@@ -1,7 +1,7 @@
 # Demos for LVGL
 
 ## Add the examples to your projects
-1. demos can be found in the 'demos' folder once you clone the lvgl.
+1. demos can be found in the 'demos' folder once you clone the lvgl. 
 
 2. In the ***lv_conf.h*** or equivalent places, you can find demo related macros, change its value to enable or disable specified demos:
 
@@ -35,22 +35,10 @@
 # define LV_DEMO_MUSIC_LARGE        0
 # define LV_DEMO_MUSIC_AUTO_PLAY    0
 #endif
-
-/*Flex layout demo*/
-#define LV_USE_DEMO_FLEX_LAYOUT     0
-
-/*Smart-phone like multi-language demo*/
-#define LV_USE_DEMO_MULTILANG       0
-
-/*Widget transformation demo*/
-#define LV_USE_DEMO_TRANSFORM       0
-
-/*Demonstrate scroll settings*/
-#define LV_USE_DEMO_SCROLL          0
 ...
 ```
 
-3. If your development environment or toolchain does not add source files inside '***lvgl***' folder automatically, ensure the `demos` folder is included for compilation.
+3. If your development environment or toolchain does not add source files inside '***lvgl***' folder automatically, ensure the `demos` folder is included for compilation.  
 4. Include "***demos/lv_demos.h***" in your application source file, for example:
 
 ```c
@@ -60,67 +48,16 @@
 ...
 ```
 
-## Configure Demos Entry
 
-"demos/lv_demos.c" provides `lv_demos_create` and `lv_demos_usage` to simplify the creation of demos.
-
-If you build your main program named `lv_demos`, then you can run the widgets demo by running `lv_demos widgets` and the benchmark demo by running `lv_demos benchmark 1`.
-
-For example:
-
-```c
-//! main.c
-#include "lvgl.h"
-#include "demos/lv_demos.h"
-
-...
-static lv_disp_t* hal_init(void)
-{
-  lv_disp_t* disp = NULL;
-
-  ...
-  /* TODO: init display and indev */
-  ...
-
-  return disp;
-}
-
-int main(int argc, char ** argv)
-{
-  lv_init();
-
-  lv_disp_t* disp = hal_init();
-  if (disp == NULL) {
-    LV_LOG_ERROR("lv_demos initialization failure!");
-    return 1;
-  }
-
-  if (!lv_demos_create(&argv[1], argc - 1)) {
-    lv_demos_usage();
-    goto demo_end;
-  }
-
-  while (1) {
-    uint32_t delay = lv_timer_handler();
-    if (delay < 1) delay = 1;
-    usleep(delay * 1000);
-  }
-
-demo_end:
-  lv_deinit();
-  return 0;
-}
-
-```
 
 ## Demos
 
 ### Widgets
-Shows how the widgets look like out of the box using the built-in material theme.
+Shows how the widgets look like out of the box using the built-in material theme.  
 
-See in [widgets](https://github.com/lvgl/lvgl/tree/master/demos/widgets) folder.
+See in [lv_demo_widgets](https://github.com/lvgl/lv_examples/tree/master/src/lv_demo_widgets) folder.
 
-![Basic demo to show the widgets of LVGL](widgets/screenshot1.png)
+<img src="https://github.com/lvgl/lv_examples/blob/master/src/lv_demo_widgets/screenshot1.png?raw=true" width=600px alt="Basic demo to show the widgets of LVGL">
 
 For running this demo properly, please make sure **LV_MEM_SIZE** is at least **38KB** (and **48KB** is recommended):
 
@@ -131,29 +68,29 @@ For running this demo properly, please make sure **LV_MEM_SIZE** is at least **3
 
 
 ### Music player
-The music player demo shows what kind of modern, smartphone-like user interfaces can be created on LVGL. It works the best with display with 480x272 or 272x480 resolution.
+The music player demo shows what kind of modern, smartphone-like user interfaces can be created on LVGL. It works the best with display with 480x272 or 272x480 resolution. 
 
-See in [music](https://github.com/lvgl/lvgl/tree/master/demos/music) folder.
+See in [lv_demo_music](https://github.com/lvgl/lv_examples/tree/master/src/lv_demo_music) folder.
 
-![Music player demo with LVGL](music/screenshot1.gif)
+<img src="https://github.com/lvgl/lv_examples/blob/master/src/lv_demo_music/screenshot1.gif?raw=true" width=600px alt="Music player demo with LVGL">
 
 ### Keypad and encoder
-LVGL allows you to control the widgets with a keypad and/or encoder without a touchpad. This demo shows how to handle buttons, drop-down lists, rollers, sliders, switches, and text inputs without touchpad.
-Learn more about the touchpad-less usage of LVGL [here](https://docs.lvgl.io/master/overview/indev.html#keypad-and-encoder).
+LVGL allows you to control the widgets with a keypad and/or encoder without a touchpad. This demo shows how to handle buttons, drop-down lists, rollers, sliders, switches, and text inputs without touchpad. 
+Learn more about the touchpad-less usage of LVGL [here](https://docs.lvgl.io/v7/en/html/overview/indev.html#keypad-and-encoder).
 
-See in [keypad_encoder](https://github.com/lvgl/lvgl/tree/master/demos/keypad_encoder) folder.
+See in [lv_demo_keypad_encoder](https://github.com/lvgl/lv_examples/tree/master/src/lv_demo_keypad_encoder) folder.
 
-![Keypad and encoder navigation in LVGL embedded GUI library](keypad_encoder/screenshot1.png)
+<img src="https://github.com/lvgl/lv_examples/blob/master/src/lv_demo_keypad_encoder/screenshot1.png?raw=true" width=600px alt="Keypad and encoder navigation in LVGL embedded GUI library">
 
 ### Benchmark
-A demo to measure the performance of LVGL or to compare different settings.
-See in [benchmark](https://github.com/lvgl/lvgl/tree/master/demos/benchmark) folder.
-![Benchmark demo with LVGL embedded GUI library](benchmark/screenshot1.png)
+A demo to measure the performance of LVGL or to compare different settings. 
+See in [lv_demo_benchmark](https://github.com/lvgl/lv_examples/tree/master/src/lv_demo_benchmark) folder.
+<img src="https://github.com/lvgl/lv_examples/blob/master/src/lv_demo_benchmark/screenshot1.png?raw=true" width=600px alt="Benchmark demo with LVGL embedded GUI library">
 
 ### Stress
-A stress test for LVGL. It contains a lot of object creation, deletion, animations, style usage, and so on. It can be used if there is any memory corruption during heavy usage or any memory leaks.
-See in [stress](https://github.com/lvgl/lvgl/tree/master/demos/stress) folder.
-![Stress test for LVGL](stress/screenshot1.png)
+A stress test for LVGL. It contains a lot of object creation, deletion, animations, style usage, and so on. It can be used if there is any memory corruption during heavy usage or any memory leaks. 
+See in [lv_demo_stress](https://github.com/lvgl/lv_examples/tree/master/src/lv_demo_stress) folder.
+<img src="https://github.com/lvgl/lv_examples/blob/master/src/lv_demo_stress/screenshot1.png?raw=true" width=600px alt="Stress test for LVGL">
 
 ## Contributing
 For contribution and coding style guidelines, please refer to the file docs/CONTRIBUTING.md in the main LVGL repo:

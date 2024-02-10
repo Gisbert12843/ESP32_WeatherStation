@@ -4,6 +4,7 @@ extern "C"
     void app_main(void);
 }
 
+
 #include "wholeinclude.h"
 
 #include "nvs_wrapper.h"
@@ -20,39 +21,7 @@ extern "C"
 
 // #define keythatneverexists "ineverdoexist"
 
-SemaphoreHandle_t semaphore_handle;
-
-using namespace helper_functions;
-
-void task_connect_wifi(void *param)
-{
-    while (true)
-    {
-        semaphore_handle = xSemaphoreCreateBinary();
-        if (WiFi_Functions::connect_to_nearest_ap())
-            xSemaphoreGive(semaphore_handle);
-        else
-        {
-            continue;
-        }
-
-        break;
-    }
-    vTaskDelete(NULL);
-}
-
-void task_init_all(void *param)
-{
-    while (true)
-    {
-        semaphore_handle = xSemaphoreCreateBinary();
-        nvs_wrapper::init();
-        WiFi_Functions::init();
-        xSemaphoreGive(semaphore_handle);
-        vTaskDelete(NULL);
-    }
-}
-
+// #define LV_TICK_PERIOD_MS 1
 /*
     Setup:
         INIT ALL
@@ -64,20 +33,24 @@ void task_init_all(void *param)
         Update Display
         (Handle User Input?)
 */
-void app_main(void)
+void app_main()
 {
-    delay(5000);
+    lv_init();
 
-    xTaskCreate(task_init_all, "init_all", 1024 * 8, NULL, 2, NULL);
-    if (xSemaphoreTake(semaphore_handle, portMAX_DELAY))
-        xSemaphoreGive(semaphore_handle);
+    /* Initialize your hardware display and input drivers here */
+    /* This includes setting up SPI, GPIO, or any other hardware interfaces */
+    ili9486_init();
+    static lv_disp_draw_buf_t disp_buf;
+    static lv_color_t buf[480 * 10];  // Adjust the size according to your display
+    lv_disp_draw_buf_init(&disp_buf, buf, NULL, 480 * 10); // Initialize the display buffer
 
-    delay(2000);
-
-    Weather current_weather("1.1.2024","Monday");
-
-    
-    
+    lv_disp_drv_t disp_drv;           // Create a display driver descriptor
+    lv_disp_drv_init(&disp_drv);      // Initialize the descriptor
+    disp_drv.draw_buf = &disp_buf;    // Assign the display buffer
+    disp_drv.flush_cb = ili9486_flush; // Set your display's flush callback function
+    disp_drv.hor_res = 480;           // Set the display's horizontal resolution
+    disp_drv.ver_res = 320;           // Set the display's vertical resolution
+    lv_disp_drv_register(&disp_drv);  // Register the driver
 }
 
 
@@ -99,21 +72,36 @@ void app_main(void)
 
 
 
-// xTaskCreate( tft_wrapper::print_pixel_mask, " tft_wrapper::init()", 1024 * 8, NULL, 2, NULL);
-    // tft_wrapper::init();
 
-    // if(!WiFi_Functions::AP_Credentials::loadAllCredentialsFromNVS())
-    //     std::cout << "\n\nCouldnt load even 1 element in loadAllCredentialsFromNVS.\n";
+// SemaphoreHandle_t semaphore_handle;
 
-    // std::cout << "\n\n\n";
-    // delay(3200);
+// using namespace helper_functions;
 
-    // // WiFi_Functions::AP_Credentials::saveRouterConfiguration(wifi_ssid, wifi_password);
-    // // WiFi_Functions::AP_Credentials::saveRouterConfiguration(wifi_ssid2, wifi_password2);
-    // // WiFi_Functions::AP_Credentials::saveRouterConfiguration(wifi_ssid3, wifi_password3);
+// void task_connect_wifi(void *param)
+// {
+//     while (true)
+//     {
+//         semaphore_handle = xSemaphoreCreateBinary();
+//         if (WiFi_Functions::connect_to_nearest_ap())
+//             xSemaphoreGive(semaphore_handle);
+//         else
+//         {
+//             continue;
+//         }
 
-    // xTaskCreate(task_connect_wifi, "connect_wifi", 1024 * 8, NULL, 2, NULL);
-    // if (xSemaphoreTake(semaphore_handle, portMAX_DELAY))
-    //     xSemaphoreGive(semaphore_handle);
+//         break;
+//     }
+//     vTaskDelete(NULL);
+// }
 
-    // std::cout << "\n\ngot to get request\n\n";
+// void task_init_all(void *param)
+// {
+//     while (true)
+//     {
+//         semaphore_handle = xSemaphoreCreateBinary();
+//         nvs_wrapper::init();
+//         WiFi_Functions::init();
+//         xSemaphoreGive(semaphore_handle);
+//         vTaskDelete(NULL);
+//     }
+// }

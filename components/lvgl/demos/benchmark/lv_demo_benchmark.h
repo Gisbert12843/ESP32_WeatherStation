@@ -15,8 +15,6 @@ extern "C" {
  *********************/
 #include "../lv_demos.h"
 
-#if LV_USE_DEMO_BENCHMARK
-
 /*********************
  *      DEFINES
  *********************/
@@ -28,17 +26,11 @@ extern "C" {
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-
-/** Run all test scenes in the LVGL benchmark with a given mode
- */
-
 void lv_demo_benchmark(void);
 
 /**********************
  *      MACROS
  **********************/
-
-#endif /*LV_USE_DEMO_BENCHMARK*/
 
 #ifdef __cplusplus
 } /* extern "C" */
