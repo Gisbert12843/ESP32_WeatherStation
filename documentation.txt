@@ -8,3 +8,47 @@ License: MIT
 
 
 WiFi_Function
+
+
+
+
+    Step
+        Variable decl/def
+            Function call
+
+How to initialize Display Driver and be ready for lvgl sequence:
+    - init spi  
+        spi_bus_config_t
+            spi_bus_initialize()
+
+    - init display
+        esp_lcd_panel_io_spi_config_t
+        esp_lcd_panel_dev_config_t
+            esp_lcd_new_panel_io_spi()
+            esp_lcd_new_panel_ili9488()
+            esp_lcd_panel_reset()
+            esp_lcd_panel_init()
+    - initialize_lvgl
+            lv_init()
+        lv_buf_1 = heap_caps_malloc(LV_BUFFER_SIZE * sizeof(lv_color_t))
+            lv_disp_draw_buf_init()
+            lv_disp_drv_init()
+        .hor_res
+        .ver_res
+        .flush_cb 
+        .draw_buf 
+        .user_data
+
+        esp_timer_create_args_t
+        esp_timer_handle_t
+            esp_timer_create()
+            esp_timer_start_periodic(5 * 1000)
+
+    -main while Loop after init above
+        while (1)
+    {
+        vTaskDelay(pdMS_TO_TICKS(10));
+        lv_timer_handler();
+    }
+
+
