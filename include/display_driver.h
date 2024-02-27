@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <driver/gpio.h>
 #include <driver/ledc.h>
 #include <driver/spi_master.h>
@@ -22,8 +21,8 @@
 
 static const char *TAG = "main";
 
-static const int DISPLAY_HORIZONTAL_PIXELS = 320;
-static const int DISPLAY_VERTICAL_PIXELS = 480;
+static const int DISPLAY_HORIZONTAL_PIXELS = 480;
+static const int DISPLAY_VERTICAL_PIXELS = 320;
 static const int DISPLAY_COMMAND_BITS = 8;
 static const int DISPLAY_PARAMETER_BITS = 8;
 static const unsigned int DISPLAY_REFRESH_HZ = 40000000;
@@ -60,7 +59,6 @@ static lv_color_t *lv_buf_2 = NULL;
 
 
 
-
 static bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io,
     esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
 {
@@ -80,58 +78,11 @@ static void lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t 
     esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, color_map);
 }
 
-static void IRAM_ATTR lvgl_tick_cb(void *param)
+static inline void IRAM_ATTR lvgl_tick_cb(void *param)
 {
 	lv_tick_inc(LVGL_UPDATE_PERIOD_MS);
 }
 
-// static void display_brightness_init(void)
-// {
-//     const ledc_channel_config_t LCD_backlight_channel =
-//     {
-//         .gpio_num = (gpio_num_t)CONFIG_TFT_BACKLIGHT_PIN,
-//         .speed_mode = BACKLIGHT_LEDC_MODE,
-//         .channel = BACKLIGHT_LEDC_CHANNEL,
-//         .intr_type = LEDC_INTR_DISABLE,
-//         .timer_sel = BACKLIGHT_LEDC_TIMER,
-//         .duty = 0,
-//         .hpoint = 0,
-//         .flags = 
-//         {
-//             .output_invert = 0
-//         }
-//     };
-//     const ledc_timer_config_t LCD_backlight_timer =
-//     {
-//         .speed_mode = BACKLIGHT_LEDC_MODE,
-//         .duty_resolution = BACKLIGHT_LEDC_TIMER_RESOLUTION,
-//         .timer_num = BACKLIGHT_LEDC_TIMER,
-//         .freq_hz = BACKLIGHT_LEDC_FRQUENCY,
-//         .clk_cfg = LEDC_AUTO_CLK
-//     };
-//     ESP_LOGI(TAG, "Initializing LEDC for backlight pin: %d", CONFIG_TFT_BACKLIGHT_PIN);
-
-//     ESP_ERROR_CHECK(ledc_timer_config(&LCD_backlight_timer));
-//     ESP_ERROR_CHECK(ledc_channel_config(&LCD_backlight_channel));
-// }
-
-// void display_brightness_set(int brightness_percentage)
-// {
-//     if (brightness_percentage > 100)
-//     {
-//         brightness_percentage = 100;
-//     }    
-//     else if (brightness_percentage < 0)
-//     {
-//         brightness_percentage = 0;
-//     }
-//     ESP_LOGI(TAG, "Setting backlight to %d%%", brightness_percentage);
-
-//     // LEDC resolution set to 10bits, thus: 100% = 1023
-//     uint32_t duty_cycle = (1023 * brightness_percentage) / 100;
-//     ESP_ERROR_CHECK(ledc_set_duty(BACKLIGHT_LEDC_MODE, BACKLIGHT_LEDC_CHANNEL, duty_cycle));
-//     ESP_ERROR_CHECK(ledc_update_duty(BACKLIGHT_LEDC_MODE, BACKLIGHT_LEDC_CHANNEL));
-// }
 
 void initialize_spi()
 {
@@ -142,12 +93,12 @@ void initialize_spi()
         .mosi_io_num = CONFIG_SPI_MOSI,
         .miso_io_num = CONFIG_SPI_MISO,
         .sclk_io_num = CONFIG_SPI_CLOCK,
-        .quadwp_io_num = GPIO_NUM_NC,
-        .quadhd_io_num = GPIO_NUM_NC,
-        .data4_io_num = GPIO_NUM_NC,
-        .data5_io_num = GPIO_NUM_NC,
-        .data6_io_num = GPIO_NUM_NC,
-        .data7_io_num = GPIO_NUM_NC,
+        // .quadwp_io_num = GPIO_NUM_NC,
+        // .quadhd_io_num = GPIO_NUM_NC,
+        // .data4_io_num = GPIO_NUM_NC,
+        // .data5_io_num = GPIO_NUM_NC,
+        // .data6_io_num = GPIO_NUM_NC,
+        // .data7_io_num = GPIO_NUM_NC,
         .max_transfer_sz = SPI_MAX_TRANSFER_SIZE,
         .flags = SPICOMMON_BUSFLAG_SCLK | SPICOMMON_BUSFLAG_MISO |
                  SPICOMMON_BUSFLAG_MOSI | SPICOMMON_BUSFLAG_MASTER,
@@ -200,8 +151,8 @@ void initialize_display()
     ESP_ERROR_CHECK(esp_lcd_panel_reset(lcd_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(lcd_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_invert_color(lcd_handle, false));
-    ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(lcd_handle, false));
-    ESP_ERROR_CHECK(esp_lcd_panel_mirror(lcd_handle, true, false));
+    ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(lcd_handle, true));
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(lcd_handle, false, true));
     ESP_ERROR_CHECK(esp_lcd_panel_set_gap(lcd_handle, 0, 0));
 
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(lcd_handle, true));
@@ -213,7 +164,9 @@ void initialize_lvgl()
     lv_init();
 
     ESP_LOGI(TAG, "Allocating %zu bytes for LVGL buffer", LV_BUFFER_SIZE * sizeof(lv_color_t));
-    lv_buf_1 = (lv_color_t *)heap_caps_malloc(LV_BUFFER_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    // lv_buf_1 = (lv_color_t *)heap_caps_malloc(LV_BUFFER_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    lv_buf_1 = (lv_color_t *) malloc((LV_BUFFER_SIZE * sizeof(lv_color_t)));
+    
 
 #if USE_DOUBLE_BUFFERING
     ESP_LOGI(TAG, "Allocating %zu bytes for second LVGL buffer", LV_BUFFER_SIZE * sizeof(lv_color_t));
@@ -230,7 +183,10 @@ void initialize_lvgl()
     lv_disp_drv.flush_cb = lvgl_flush_cb;
     lv_disp_drv.draw_buf = &lv_disp_buf;
     lv_disp_drv.user_data = lcd_handle;
+    lv_disp_drv.rotated = 0;
     lv_display = lv_disp_drv_register(&lv_disp_drv);
+    // lv_disp_set_rotation(lv_display, LV_DISP_ROT_270);
+
 
     ESP_LOGI(TAG, "Creating LVGL tick timer");
     const esp_timer_create_args_t lvgl_tick_timer_args =
@@ -238,7 +194,7 @@ void initialize_lvgl()
         .callback = &lvgl_tick_cb,
         .name = "lvgl_tick"
     };
-    esp_timer_handle_t lvgl_tick_timer = NULL;
+    static esp_timer_handle_t lvgl_tick_timer = NULL;
     ESP_ERROR_CHECK(esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer));
     ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, LVGL_UPDATE_PERIOD_MS * 1000));
 }
