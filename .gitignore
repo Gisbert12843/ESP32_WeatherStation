@@ -5,3 +5,4 @@
 .vscode/ipch
 include/secret.h
 include/secret.h
+components/esp_lcd_ili9488

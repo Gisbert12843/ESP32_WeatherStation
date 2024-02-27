@@ -7,29 +7,25 @@ namespace WiFi_Functions
 {
     class AP_Credentials;
 
-    inline EventGroupHandle_t s_wifi_event_group;
+    extern EventGroupHandle_t s_wifi_event_group;
 
     // State of WiFi Init, changed when calling init() and de_init()
-    inline bool init_state = false;
-
-    // WPSEventHandlers
-    inline esp_event_handler_instance_t instance_any_id_wps;
+    extern bool init_state;
 
     // WiFiEventHandlers
-    inline esp_event_handler_instance_t instance_any_id;
-    inline esp_event_handler_instance_t instance_got_ip;
+    extern esp_event_handler_instance_t instance_any_id;
+    extern esp_event_handler_instance_t instance_got_ip;
 
-    inline esp_netif_t *sta_netif;
+    extern esp_netif_t *sta_netif;
 
-    inline esp_wps_config_t wps_config = WPS_CONFIG_INIT_DEFAULT(WPS_TYPE_PBC);
-    inline wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    extern wifi_init_config_t cfg;
 
     // Bits for following the status of the WiFI Connection to the current AP
     // Used by e.g. wifi_fail_bit_listener
-    inline constexpr int8_t WIFI_CONNECTED_BIT = BIT1;
-    inline constexpr int8_t WIFI_FAIL_BIT = BIT2;
+    constexpr int8_t WIFI_CONNECTED_BIT = BIT1;
+    constexpr int8_t WIFI_FAIL_BIT = BIT2;
 
-    inline AP_Credentials *currentAPConnection = nullptr;
+    extern AP_Credentials *latestAPConnection;
 
     class AP_Credentials
     {
@@ -38,7 +34,7 @@ namespace WiFi_Functions
         std::string wifi_password = "";
 
         // Contains all stored AP Credentials at RunTime.
-        inline static std::vector<AP_Credentials *> vec_AP_Credentials;
+        static std::vector<AP_Credentials *> vec_AP_Credentials;
 
         void setWifi_ssid(std::string new_ssid)
         {
@@ -79,6 +75,8 @@ namespace WiFi_Functions
             return wifi_password;
         }
 
+        void printConnectionData();
+
         static const std::vector<AP_Credentials *> getVecAPCredentials()
         {
             return vec_AP_Credentials;
@@ -92,19 +90,7 @@ namespace WiFi_Functions
         static AP_Credentials *saveRouterConfiguration(std::string wifi_ssid, std::string wifi_password, bool save_to_nvs = true);
         static AP_Credentials *findSavedRouterConnection(const std::string wifi_ssid);
 
-        static void listAllConnections()
-        {
-            int i = 0;
-            for (auto it : vec_AP_Credentials)
-            {
-                printf("%i: SSID: %s Password: %s\n", ++i, it->getWifi_ssid().c_str(), it->getWifi_password().c_str());
-            }
-        }
-
-        void printConnectionData()
-        {
-            std::cout << "SSID: \"" << this->getWifi_ssid().c_str() << "\" Password: \"" << this->getWifi_password().c_str() << "\"\n";
-        }
+        static void listAllConnections();
     };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -131,20 +117,9 @@ namespace WiFi_Functions
     // If that also fails return to the infinity loop else close the function
     void wifi_fail_bit_listener();
 
-    /* void fix_wifi()
-    {
-
-    } */
 };
-
-
 
 namespace WiFi_Task
 {
-    inline void Task_Start_Fail_Bit_Listener(void *params)
-    {
-        WiFi_Functions::wifi_fail_bit_listener();
-        std::cout << "\n\n deleting Task_Start_Fail_Bit_Listener\n\n";
-        vTaskDelete(NULL);
-    }
+    void Task_Start_Fail_Bit_Listener(void *params);
 }
